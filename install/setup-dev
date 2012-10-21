@@ -1,0 +1,72 @@
+#!/bin/bash
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+cd /tmp
+
+echo "deb http://download.virtualbox.org/virtualbox/debian precise contrib non-free" | sudo tee /etc/apt/sources.list.d/virtualbox.list
+wget -q http://download.virtualbox.org/virtualbox/debian/oracle_vbox.asc -O- | sudo apt-key add -
+sudo apt-key update
+sudo apt-get update
+sudo apt-get purge vagrant rubygems
+sudo apt-get install -y build-essential
+sudo apt-get install -y virtualbox-4.2
+sudo apt-get install -y ruby
+sudo apt-get install -y ruby1.8-dev
+sudo apt-get install -y rdoc
+sudo apt-get install -y irb
+sudo apt-get install -y ri
+sudo apt-get install -y libopenssl-ruby
+sudo apt-get install -y nfs-kernel-server
+
+if ! ls -l /usr/bin/gem | grep "/usr/bin/gem1.8"
+then
+    wget http://rubyforge.org/frs/download.php/76073/rubygems-1.8.24.tgz
+    tar -zxvf rubygems-1.8.24.tgz
+    cd rubygems-1.8.24/
+    sudo ruby setup.rb
+    sudo rm /usr/bin/gem
+    sudo ln -s /usr/bin/gem1.8 /usr/bin/gem
+else
+    echo "ruby gems already installed correctly"
+fi
+
+if ! gem list --local | grep vagrant
+then
+    sudo gem install vagrant
+else
+    echo "vagrant gem already installed"
+fi
+
+if ! hash knife
+then
+    sudo true && curl -L http://opscode.com/chef/install.sh | sudo bash
+else
+    echo "chef already installed"
+fi
+
+cd $DIR
+cd ../
+
+if ! vagrant box list | grep "^precise64$"
+then
+    vagrant box add precise64 http://files.vagrantup.com/precise64.box
+else
+    echo "precise64 box already setup"
+fi
+
+if ! grep "redmine.local" /etc/hosts
+then
+    echo "adding redmine entry to hosts file"
+    cd $DIR
+    sudo ./add-hosts-entry
+else
+    echo "hosts file redmine entry found, skipping"
+fi
+
+cd $DIR
+cd ../
+
+echo
+echo "Type 'vagrant up' to start..."
+echo
