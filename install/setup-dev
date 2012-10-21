@@ -50,11 +50,11 @@ fi
 
 if ! grep "redmine.local" /etc/hosts
 then
-    echo "adding phase4-2 entry to hosts file"
+    echo "adding redmine entry to hosts file"
     cd $DIR
     sudo ./add-hosts-entry
 else
-    echo "hosts file phase4-2 entry found, skipping"
+    echo "hosts file redmine entry found, skipping"
 fi
 
 cd $DIR
