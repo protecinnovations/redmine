@@ -38,8 +38,7 @@ Vagrant::Config.run do |config|
 
   Vagrant::Config.run do |config|
     config.vm.customize ["modifyvm", :id, "--memory", 1024]
-    config.vm.share_folder("v-root", "/vagrant", ".", :nfs => true)
-    config.vm.share_folder("k-root", "/kettle", "/home/share/kettle")
+    config.vm.share_folder("v-root", "/vagrant", ".")
     config.vm.provision :shell, :inline => "/vagrant/install/install"
   end
 
