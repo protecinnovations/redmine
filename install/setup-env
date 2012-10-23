@@ -1,0 +1,27 @@
+#!/bin/bash
+sudo apt-get update
+#sudo apt-get upgrade
+sudo apt-get install -y ruby1.8-dev ruby1.8-full rubygems1.8
+sudo apt-get install -y gcc
+sudo apt-get install -y imagemagick imagemagick-common imagemagick-doc imagemagick-dbg imagemagick-doc
+sudo apt-get install -y libmagickcore-dev libmagickwand-dev
+sudo apt-get install -y mysql-server mysql-client
+sudo apt-get install -y libmysqlclient-dev
+sudo apt-get install -y nginx
+sudo apt-get install -y thin
+
+sudo gem install rails
+sudo gem install mysql
+sudo gem install mysql2
+sudo gem install bundler
+sudo gem install polyglot
+
+sudo bundle install --without development test postgresql sqlite
+
+rake generate_session_store
+rake generate_secret_token
+
+mkdir tmp public/plugin_assets
+sudo chown -R www-data:www-data files
+sudo chown -R www-data:www-data public/plugin_assets
+

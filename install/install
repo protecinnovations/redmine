@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# the us archives are really slow and i'm too lazy to make a new
+# box just for this...
+sed -i "s/us.archive/gb.archive/" /etc/apt/sources.list
+
+# onto the rest :)
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+cd $DIR
+cd ../
+install/setup-env
+
+cd $DIR
+pwd
+chef-solo -c "$DIR"/solo.rb -j "$DIR"/solo-dev.json
+
