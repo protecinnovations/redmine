@@ -8,7 +8,7 @@ sed -i "s/us.archive/gb.archive/" /etc/apt/sources.list
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 cd $DIR
 cd ../
-install/setup-env
+#install/setup-env
 
 cd $DIR
 pwd

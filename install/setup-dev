@@ -38,6 +38,13 @@ else
     echo "vagrant gem already installed"
 fi
 
+if ! hash knife
+then
+    sudo true && curl -L http://opscode.com/chef/install.sh | sudo bash
+else
+    echo "chef already installed"
+fi
+
 cd $DIR
 cd ../
 

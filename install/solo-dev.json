@@ -1,0 +1,18 @@
+{
+    "run_list": [ "recipe[protec-redmine]" ],
+    "redmine_dir": "/vagrant",
+    "project_name": "redmine",
+    "environment": "development",
+    "web": {
+        "server_name": "redmine.local"
+    },
+    "database": {
+        "hostname": "localhost",
+        "schema": "redmine",
+        "user": "redmine",
+        "password": "password"
+    },
+    "mysql": {
+        "server_root_password": "password"
+    }
+}
