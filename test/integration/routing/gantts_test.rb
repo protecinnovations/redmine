@@ -37,5 +37,14 @@ class RoutingGanttsTest < ActionController::IntegrationTest
         { :controller => 'gantts', :action => 'show',
           :project_id => 'project-name', :format => 'pdf' }
       )
+    assert_routing(
+        { :method => 'get', :path => "/gantts/edit_gantt" },
+        { :controller => 'gantts', :action => 'edit_gantt' }
+      )
+    assert_routing(
+        { :method => 'post', :path => "/gantts/edit_gantt/123" },
+        { :controller => 'gantts', :action => 'edit_gantt',
+          :id => '123' }
+      )
   end
 end

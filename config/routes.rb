@@ -53,6 +53,10 @@ RedmineApp::Application.routes.draw do
 
   match '/projects/:project_id/issues/gantt', :to => 'gantts#show'
   match '/issues/gantt', :to => 'gantts#show'
+  match '/gantts/edit_gantt', :controller => 'gantts', :action => 'edit_gantt',
+         :via => [:get]
+  match '/gantts/edit_gantt/:id', :controller => 'gantts', :action => 'edit_gantt',
+         :via => [:post]
 
   match '/projects/:project_id/issues/calendar', :to => 'calendars#show'
   match '/issues/calendar', :to => 'calendars#show'
