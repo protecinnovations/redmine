@@ -1,0 +1,20 @@
+#!/bin/bash
+
+if [ $# -eq 0 ]
+then
+    echo "usage: s3-backup host schema user password"
+    exit 0
+fi
+
+if ! hash s3cmd
+then
+    echo "s3cmd needs to be installed and configured"
+    exit 1
+fi
+
+file=/tmp/redmine_`date +%y%m%d-%H%M%S`.gz
+mysqldump -h "$1" -u "$3" -p"$4" "$2" | gzip > $file
+s3cmd put "$file" s3://backups.redmine/mysqldumps/
+
+s3cmd sync files s3://backups.redmine/
+
