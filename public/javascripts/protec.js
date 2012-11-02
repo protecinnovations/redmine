@@ -1,6 +1,20 @@
 var original_sidebar_width = 0;
 var original_content_width = 0;
 
+function setup_dom() {
+    var zoom = $("#zoom").val();
+    $(".handle").draggable(
+        {
+            axis: "x",
+            containment: "parent",
+            grid: [ Math.pow(2, zoom), 10 ],
+            stop: function(event, ui) {
+                issue_moved(this);
+            }
+        }
+    );
+}
+
 function setup_events() {
     $("#toggle-sidebar").click(function() {
         if ($(this).hasClass("hide")) {
@@ -24,4 +38,5 @@ function setup_events() {
         }
     });
 }
+$(document).ready(setup_dom);
 $(document).ready(setup_events);

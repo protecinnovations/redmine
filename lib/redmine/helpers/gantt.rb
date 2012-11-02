@@ -828,7 +828,7 @@ module Redmine
             output << "<div id='marker_end_#{options[:kind]}#{options[:id]}' style='top:#{ params[:top] }px;left:#{ coords[:end] + params[:zoom] }px;width:15px;' class='#{options[:css]} marker ending'>&nbsp;</div>".html_safe
           end
         else
-          output << view.draggable_element("ev_#{options[:kind]}#{options[:id]}", :revert =>false, :scroll=>"'gantt-container'", :constraint => "'horizontal'", :snap=>params[:zoom],:onEnd=>'function( draggable, event )  {issue_moved(draggable.element);}')         #pend
+          #output << view.draggable_element("ev_#{options[:kind]}#{options[:id]}", :revert =>false, :scroll=>"'gantt-container'", :constraint => "'horizontal'", :snap=>params[:zoom],:onEnd=>'function( draggable, event )  {issue_moved(draggable.element);}')         #pend
         end
         # Renders the label on the right
         if options[:label]

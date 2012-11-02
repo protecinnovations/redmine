@@ -75,6 +75,10 @@ t_height = g_height + headers_height
     var url_str = '<%=  url_for(:controller=>:gantts, :action => :edit_gantt) %>';
     url_str = url_str + "/" + id_str;
     var day = parseInt(elem.style.left)/parseInt(v_zm);
+    var data = 'day='+day+'&date_from='+v_date_from+'&date_to='+v_date_to+'&zoom='+v_pzm+"&project_id=<%= @project.to_param %>";
+    $.ajax({type: "POST", url: url_str, data: data, success: change_dates});
+
+    /*
     new Ajax.Request(url_str, {asynchronous:true, evalScripts:true,
       parameters: 'day='+day+'&date_from='+v_date_from+'&date_to='+v_date_to+'&zoom='+v_pzm+"&project_id=<%= @project.to_param %>",
       onSuccess:function(obj) {
@@ -84,6 +88,7 @@ t_height = g_height + headers_height
         handle_failure(obj.responseText);
       }
     });
+    */
   }
 
   function handle_failure(res_text) {
@@ -122,9 +127,10 @@ t_height = g_height + headers_height
     var start_date_elem = document.getElementById(elem_id + '_start_date_str');
     if (!start_date_elem) {
       //target not exists
-      return;
+      //return;
+    } else {
+        start_date_elem.innerHTML = vals[0];
     }
-    start_date_elem.innerHTML = vals[0];
     var tooltip_start_date_elem = document.getElementById('tooltip_start_date_' + elem_id);
     if (tooltip_start_date_elem) {
       tooltip_start_date_elem.innerHTML = vals[0];
