@@ -211,13 +211,13 @@ t_height = g_height + headers_height
   <p class="warning"><%= l(:notice_gantt_chart_truncated, :max => @gantt.max_rows) %></p>
 <% end %>
 
-<table style="width:100%; border:0; border-collapse: collapse;">
+<table class="gantt_table" style="width:100%; border:0; border-collapse: collapse;">
 <tr>
 <td style="width:<%= subject_width %>px; padding:0px;">
 
 <div style="position:relative;height:<%= t_height + 24 %>px;width:<%= subject_width - 2 %>px;">
 <div style="right:-2px;width:<%= subject_width - 2 %>px;height:<%= headers_height %>px;background: #eee;" class="gantt_hdr"></div>
-<div style="right:-2px;width:<%= subject_width - 2 %>px;height:<%= t_height %>px;border-left: 1px solid #c0c0c0;overflow:hidden;" class="gantt_hdr"></div>
+<div style="right:-2px;width:<%= subject_width - 2 %>px;height:<%= t_height %>px;border-left: 1px solid #c0c0c0;overflow:hidden;" class="gantt_hdr gantt_background"></div>
 
 <div class="gantt_subjects">
 <%= @gantt.subjects.html_safe %>
@@ -291,7 +291,7 @@ if show_days
   (@gantt.date_to - @gantt.date_from + 1).to_i.times do
   width =  zoom - 1
   %>
-  <div style="left:<%= left %>px;top:37px;width:<%= width %>px;height:<%= height %>px;font-size:0.6em;<%= "background:#f1f1f1;" if wday > 5 %>" class="gantt_hdr">
+  <div style="left:<%= left %>px;top:37px;width:<%= width %>px;height:<%= height %>px;font-size:0.6em;<%= "background-color:#f1f1f1;" if wday > 5 %>" class="gantt_hdr gantt_background gantt_col">
     <% if @gantt.zoom == 4 %>
       <%= "#{dt.day}" %><br>
     <% end %>

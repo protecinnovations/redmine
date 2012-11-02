@@ -1135,3 +1135,30 @@ h2 img { vertical-align:middle; }
   height:1px;
   overflow:hidden;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.gantt_background {
+    background-image: url("../../../images/gantt-horizontal.png");
+    background-position: 0 -1px;
+}
+
+.gantt_col {
+    background-position: 0 2px;
+}
+
+.gantt_table td {
+    padding: 0;
+}
