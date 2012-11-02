@@ -22,7 +22,7 @@ class Unauthorized < Exception; end
 
 class ApplicationController < ActionController::Base
   include Redmine::I18n
-  
+
   class_attribute :accept_api_auth_actions
   class_attribute :accept_rss_auth_actions
   class_attribute :model_object
@@ -39,6 +39,7 @@ class ApplicationController < ActionController::Base
 
   rescue_from ActionController::InvalidAuthenticityToken, :with => :invalid_authenticity_token
   rescue_from ::Unauthorized, :with => :deny_access
+  rescue_from ::ActionView::MissingTemplate, :with => :missing_template
 
   include Redmine::Search::Controller
   include Redmine::MenuManager::MenuController
@@ -81,30 +82,46 @@ class ApplicationController < ActionController::Base
     Setting.check_cache
     # Find the current user
     User.current = find_current_user
+    logger.info("  Current user: " + (User.current.logged? ? "#{User.current.login} (id=#{User.current.id})" : "anonymous")) if logger
   end
 
   # Returns the current user or nil if no user is logged in
   # and starts a session if needed
   def find_current_user
-    if session[:user_id]
-      # existing session
-      (User.active.find(session[:user_id]) rescue nil)
-    elsif user = try_to_autologin
-      user
-    elsif params[:format] == 'atom' && params[:key] && request.get? && accept_rss_auth?
-      # RSS key authentication does not start a session
-      User.find_by_rss_key(params[:key])
-    elsif Setting.rest_api_enabled? && accept_api_auth?
+    user = nil
+    unless api_request?
+      if session[:user_id]
+        # existing session
+        user = (User.active.find(session[:user_id]) rescue nil)
+      elsif autologin_user = try_to_autologin
+        user = autologin_user
+      elsif params[:format] == 'atom' && params[:key] && request.get? && accept_rss_auth?
+        # RSS key authentication does not start a session
+        user = User.find_by_rss_key(params[:key])
+      end
+    end
+    if user.nil? && Setting.rest_api_enabled? && accept_api_auth?
       if (key = api_key_from_request)
         # Use API key
-        User.find_by_api_key(key)
+        user = User.find_by_api_key(key)
       else
         # HTTP Basic, either username/password or API key/random
         authenticate_with_http_basic do |username, password|
-          User.try_to_login(username, password) || User.find_by_api_key(username)
+          user = User.try_to_login(username, password) || User.find_by_api_key(username)
+        end
+      end
+      # Switch user if requested by an admin user
+      if user && user.admin? && (username = api_switch_user_from_request)
+        su = User.find_by_login(username)
+        if su && su.active?
+          logger.info("  User switched by: #{user.login} (id=#{user.id})") if logger
+          user = su
+        else
+          render_error :message => 'Invalid X-Redmine-Switch-User header', :status => 412
         end
       end
     end
+    user
   end
 
   def try_to_autologin
@@ -290,12 +307,16 @@ class ApplicationController < ActionController::Base
   end
 
   def back_url
-    params[:back_url] || request.env['HTTP_REFERER']
+    url = params[:back_url]
+    if url.nil? && referer = request.env['HTTP_REFERER']
+      url = CGI.unescape(referer.to_s)
+    end
+    url
   end
 
   def redirect_back_or_default(default)
-    back_url = CGI.unescape(params[:back_url].to_s)
-    if !back_url.blank?
+    back_url = params[:back_url].to_s
+    if back_url.present?
       begin
         uri = URI.parse(back_url)
         # do not redirect user to another host or to the login or register page
@@ -304,6 +325,7 @@ class ApplicationController < ActionController::Base
           return
         end
       rescue URI::InvalidURIError
+        logger.warn("Could not redirect to invalid URL #{back_url}")
         # redirect to default
       end
     end
@@ -347,13 +369,17 @@ class ApplicationController < ActionController::Base
       format.html {
         render :template => 'common/error', :layout => use_layout, :status => @status
       }
-      format.atom { head @status }
-      format.xml { head @status }
-      format.js { head @status }
-      format.json { head @status }
+      format.any { head @status }
     end
   end
-  
+
+  # Handler for ActionView::MissingTemplate exception
+  def missing_template
+    logger.warn "Missing template, responding with 404"
+    @project = nil
+    render_404
+  end
+
   # Filter for actions that provide an API response
   # but have no HTML representation for non admin users
   def require_admin_or_api_request
@@ -386,7 +412,7 @@ class ApplicationController < ActionController::Base
     @items.sort! {|x,y| y.event_datetime <=> x.event_datetime }
     @items = @items.slice(0, Setting.feeds_limit.to_i)
     @title = options[:title] || Setting.app_title
-    render :template => "common/feed.atom", :layout => false,
+    render :template => "common/feed", :formats => [:atom], :layout => false,
            :content_type => 'application/atom+xml'
   end
 
@@ -492,6 +518,11 @@ class ApplicationController < ActionController::Base
     end
   end
 
+  # Returns the API 'switch user' value if present
+  def api_switch_user_from_request
+    request.headers["X-Redmine-Switch-User"].to_s.presence
+  end
+
   # Renders a warning flash if obj has unsaved attachments
   def render_attachment_warning_if_needed(obj)
     flash[:warning] = l(:warning_attachments_not_saved, obj.unsaved_attachments.size) if obj.unsaved_attachments.present?
@@ -522,8 +553,13 @@ class ApplicationController < ActionController::Base
 
   # Renders a 200 response for successfull updates or deletions via the API
   def render_api_ok
-    # head :ok would return a response body with one space
-    render :text => '', :status => :ok, :layout => nil
+    render_api_head :ok
+  end
+
+  # Renders a head API response
+  def render_api_head(status)
+    # #head would return a response body with one space
+    render :text => '', :status => status, :layout => nil
   end
 
   # Renders API response on validation failure

@@ -1,5 +1,10 @@
-$('notes').value = "<%= raw escape_javascript(@content) %>";
-Element.show('update');
-Form.Element.focus('notes');
-Element.scrollTo('update');
-$('notes').scrollTop = $('notes').scrollHeight - $('notes').clientHeight;
+$('#issue_notes').val("<%= raw escape_javascript(@content) %>");
+<%
+  # when quoting a private journal, check the private checkbox
+  if @journal && @journal.private_notes? 
+%>
+$('#issue_private_notes').attr('checked', true);
+<% end %>
+
+showAndScrollTo("update", "notes");
+$('#notes').scrollTop = $('#notes').scrollHeight - $('#notes').clientHeight;

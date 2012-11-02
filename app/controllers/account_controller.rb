@@ -210,6 +210,7 @@ class AccountController < ApplicationController
   end
 
   def successful_authentication(user)
+    logger.info "Successful authentication for '#{user.login}' from #{request.remote_ip} at #{Time.now.utc}"
     # Valid user
     self.logged_user = user
     # generate a key and set cookie if autologin
@@ -237,7 +238,7 @@ class AccountController < ApplicationController
   def onthefly_creation_failed(user, auth_source_options = { })
     @user = user
     session[:auth_source_registration] = auth_source_options unless auth_source_options.empty?
-    render register_path
+    render :action => 'register'
   end
 
   def invalid_credentials

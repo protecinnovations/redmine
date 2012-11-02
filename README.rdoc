@@ -1,5 +1,7 @@
-= Redmine
+= Protec Redmine
 
-Redmine is a flexible project management web application written using Ruby on Rails framework.
+A fork of Redmine, the flexible project management web application written using Ruby on Rails framework.
 
-More details can be found in the doc directory or on the official website http://www.redmine.org
+The original Redmine can be found here: http://www.redmine.org
+
+This fork attempts to make the project management features of Redmine a little more bearable for Protec staff.

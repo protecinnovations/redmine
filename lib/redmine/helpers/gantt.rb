@@ -21,6 +21,7 @@ module Redmine
     class Gantt
       include ERB::Util
       include Redmine::I18n
+      include Redmine::Utils::DateCalculation
 
       # :nodoc:
       # Some utility methods for the PDF export
@@ -172,40 +173,22 @@ module Redmine
       def render(options={})
         options = {:top => 0, :top_increment => 20, :indent_increment => 20, :render => :subject, :format => :html}.merge(options)
         indent = options[:indent] || 4
-        if options[:format] == :html
-          @subjects = '' unless options[:only] == :lines && options[:only] == :calendars
-          @lines = '' unless options[:only] == :subjects && options[:only] == :calendars
-          @calendars = '' unless options[:only] == :lines && options[:only] == :subjects
-        else
-          @subjects = '' unless options[:only] == :lines
-          @lines = '' unless options[:only] == :subjects
-        end
+        @subjects = '' unless options[:only] == :lines
+        @lines = '' unless options[:only] == :subjects
         @number_of_rows = 0
         Project.project_tree(projects) do |project, level|
           options[:indent] = indent + level * options[:indent_increment]
           render_project(project, options)
           break if abort?
         end
-        if options[:format] == :html
-          @subjects_rendered = true unless options[:only] == :lines && options[:only] == :calendars
-          @lines_rendered = true unless options[:only] == :subjects && options[:only] == :calendars
-          @calendars_rendered = true unless options[:only] == :lines && options[:only] == :subjects
-        else
-          @subjects_rendered = true unless options[:only] == :lines
-          @lines_rendered = true unless options[:only] == :subjects
-        end
+        @subjects_rendered = true unless options[:only] == :lines
+        @lines_rendered = true unless options[:only] == :subjects
         render_end(options)
       end
 
       def render_project(project, options={})
-        if options[:format] == :html
-          subject_for_project(project, options) unless options[:only] == :lines && options[:only] == :calendars
-          line_for_project(project, options) unless options[:only] == :subjects && options[:only] == :calendars
-          calendar_for_project(project, options) unless options[:only] == :lines && options[:only] == :subjects
-        else
-          subject_for_project(project, options) unless options[:only] == :lines
-          line_for_project(project, options) unless options[:only] == :subjects
-        end
+        subject_for_project(project, options) unless options[:only] == :lines
+        line_for_project(project, options) unless options[:only] == :subjects
         options[:top] += options[:top_increment]
         options[:indent] += options[:indent_increment]
         @number_of_rows += 1
@@ -227,14 +210,8 @@ module Redmine
       def render_issues(issues, options={})
         @issue_ancestors = []
         issues.each do |i|
-          if options[:format] == :html
-            subject_for_issue(i, options) unless options[:only] == :lines && options[:only] == :calendars
-            line_for_issue(i, options) unless options[:only] == :subjects && options[:only] == :calendars
-            calendar_for_issue(i, options) unless options[:only] == :lines && options[:only] == :subjects
-          else
-            subject_for_issue(i, options) unless options[:only] == :lines
-            line_for_issue(i, options) unless options[:only] == :subjects
-          end
+          subject_for_issue(i, options) unless options[:only] == :lines
+          line_for_issue(i, options) unless options[:only] == :subjects
           options[:top] += options[:top_increment]
           @number_of_rows += 1
           break if abort?
@@ -244,14 +221,8 @@ module Redmine
 
       def render_version(project, version, options={})
         # Version header
-        if options[:format] == :html
-          subject_for_version(version, options) unless options[:only] == :lines && options[:only] == :calendars
-          line_for_version(version, options) unless options[:only] == :subjects && options[:only] == :calendars
-          calendar_for_version(version, options) unless options[:only] == :lines && options[:only] == :subjects
-        else
-          subject_for_version(version, options) unless options[:only] == :lines
-          line_for_version(version, options) unless options[:only] == :subjects
-        end
+        subject_for_version(version, options) unless options[:only] == :lines
+        line_for_version(version, options) unless options[:only] == :subjects
         options[:top] += options[:top_increment]
         @number_of_rows += 1
         return if abort?
@@ -296,7 +267,7 @@ module Redmine
           label = h(project)
           case options[:format]
           when :html
-            html_task(options, coords, :css => "project task", :label => label, :markers => true, :id => project.id, :kind => "p")
+            html_task(options, coords, :css => "project task", :label => label, :markers => true)
           when :image
             image_task(options, coords, :label => label, :markers => true, :height => 3)
           when :pdf
@@ -333,7 +304,7 @@ module Redmine
           label = h("#{version.project} -") + label unless @project && @project == version.project
           case options[:format]
           when :html
-            html_task(options, coords, :css => "version task", :label => label, :markers => true, :id => version.id, :kind => "v")
+            html_task(options, coords, :css => "version task", :label => label, :markers => true)
           when :image
             image_task(options, coords, :label => label, :markers => true, :height => 3)
           when :pdf

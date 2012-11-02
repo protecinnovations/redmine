@@ -67,7 +67,7 @@ class Redmine::Helpers::GanttHelperTest < ActionView::TestCase
     should "not exceed max_rows option" do
       p = Project.generate!
       5.times do
-        Issue.generate_for_project!(p)
+        Issue.generate!(:project => p)
       end
       create_gantt(p)
       @gantt.render
@@ -90,14 +90,14 @@ class Redmine::Helpers::GanttHelperTest < ActionView::TestCase
     end
 
     should "count the number of issues without a version" do
-      @project.issues << Issue.generate_for_project!(@project, :fixed_version => nil)
+      @project.issues << Issue.generate!(:project => @project, :fixed_version => nil)
       assert_equal 2, @gantt.number_of_rows_on_project(@project)
     end
 
     should "count the number of issues on versions, including cross-project" do
       version = Version.generate!
       @project.versions << version
-      @project.issues << Issue.generate_for_project!(@project, :fixed_version => version)
+      @project.issues << Issue.generate!(:project => @project, :fixed_version => version)
       assert_equal 3, @gantt.number_of_rows_on_project(@project)
     end
   end
@@ -411,7 +411,6 @@ class Redmine::Helpers::GanttHelperTest < ActionView::TestCase
       context "status content" do
         should "appear at the far left, even if it's far in the past" do
           @gantt.instance_variable_set('@date_to', (today - 14))
-
           @output_buffer = @gantt.line_for_project(@project, {:format => :html, :zoom => 4})
           assert_select "div.project.label", /#{@project.name}/
         end
@@ -439,7 +438,6 @@ class Redmine::Helpers::GanttHelperTest < ActionView::TestCase
       @project.trackers << @tracker
       @version = Version.generate!(:effective_date => (today - 1))
       @project.versions << @version
-
       @project.issues << Issue.generate!(:fixed_version => @version,
                                          :subject => "gantt#subject_for_version",
                                          :tracker => @tracker,
@@ -513,7 +511,6 @@ class Redmine::Helpers::GanttHelperTest < ActionView::TestCase
           @output_buffer = @gantt.line_for_version(@version, {:format => :html, :zoom => 4})
           assert_select "div.version.task_todo[style*=width:58px]", true, @output_buffer
         end
-
       end
 
       context "late line" do
@@ -692,7 +689,6 @@ class Redmine::Helpers::GanttHelperTest < ActionView::TestCase
 
         should "not be the total done width if the chart starts after issue start date"  do
           create_gantt(@project, :date_from => (today - 5))
-
           @output_buffer = @gantt.line_for_issue(@issue, {:format => :html, :zoom => 4})
           assert_select "div.task_done[style*=left:0px]", true, @output_buffer
           assert_select "div.task_done[style*=width:8px]", true, @output_buffer

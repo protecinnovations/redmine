@@ -56,7 +56,9 @@
     rows.right l(:field_done_ratio), progress_bar(@issue.done_ratio, :width => '80px', :legend => "#{@issue.done_ratio}%"), :class => 'progress'
   end
   unless @issue.disabled_core_fields.include?('estimated_hours')
-    rows.right l(:field_estimated_hours), l_hours(@issue.estimated_hours), :class => 'estimated-hours'
+    unless @issue.estimated_hours.nil?
+      rows.right l(:field_estimated_hours), l_hours(@issue.estimated_hours), :class => 'estimated-hours'
+    end
   end
   if User.current.allowed_to?(:view_time_entries, @project)
     rows.right l(:label_spent_time), (@issue.total_spent_hours > 0 ? (link_to l_hours(@issue.total_spent_hours), {:controller => 'timelog', :action => 'index', :project_id => @project, :issue_id => @issue}) : "-"), :class => 'spent-time'
@@ -69,6 +71,7 @@ end %>
 <% if @issue.description? || @issue.attachments.any? -%>
 <hr />
 <% if @issue.description? %>
+<div class="description">
   <div class="contextual">
   <%= link_to l(:button_quote),
               {:controller => 'journals', :action => 'new', :id => @issue},
@@ -81,6 +84,7 @@ end %>
   <div class="wiki">
   <%= textilizable @issue, :description, :attachments => @issue.attachments %>
   </div>
+</div>
 <% end %>
 <%= link_to_attachments @issue, :thumbnails => true %>
 <% end -%>
@@ -91,7 +95,7 @@ end %>
 <hr />
 <div id="issue_tree">
 <div class="contextual">
-  <%= link_to(l(:button_add), {:controller => 'issues', :action => 'new', :project_id => @project, :issue => {:parent_issue_id => @issue}}) if User.current.allowed_to?(:manage_subtasks, @project) %>
+  <%= link_to_new_subtask(@issue) if User.current.allowed_to?(:manage_subtasks, @project) %>
 </div>
 <p><strong><%=l(:label_subtask_plural)%></strong></p>
 <%= render_descendants_tree(@issue) unless @issue.leaf? %>
@@ -153,7 +157,6 @@ end %>
 
 <% content_for :header_tags do %>
     <%= auto_discovery_link_tag(:atom, {:format => 'atom', :key => User.current.rss_key}, :title => "#{@issue.project} - #{@issue.tracker} ##{@issue.id}: #{@issue.subject}") %>
-    <%= stylesheet_link_tag 'scm' %>
 <% end %>
 
 <%= context_menu issues_context_menu_path %>

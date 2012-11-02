@@ -102,7 +102,7 @@ RedmineApp::Application.routes.draw do
       match 'copy', :via => [:get, :post]
     end
 
-    resources :memberships, :shallow => true, :controller => 'members', :only => [:index, :show, :create, :update, :destroy] do
+    resources :memberships, :shallow => true, :controller => 'members', :only => [:index, :show, :new, :create, :update, :destroy] do
       collection do
         get 'autocomplete'
       end
@@ -147,8 +147,6 @@ RedmineApp::Application.routes.draw do
     end
 
     match 'wiki/index', :controller => 'wiki', :action => 'index', :via => :get
-    match 'wiki/:id/diff/:version/vs/:version_from', :controller => 'wiki', :action => 'diff'
-    match 'wiki/:id/diff/:version', :controller => 'wiki', :action => 'diff'
     resources :wiki, :except => [:index, :new, :create] do
       member do
         get 'rename'
@@ -165,7 +163,10 @@ RedmineApp::Application.routes.draw do
       end
     end
     match 'wiki', :controller => 'wiki', :action => 'show', :via => :get
-    match 'wiki/:id/annotate/:version', :controller => 'wiki', :action => 'annotate'
+    get 'wiki/:id/:version', :to => 'wiki#show'
+    delete 'wiki/:id/:version', :to => 'wiki#destroy_version'
+    get 'wiki/:id/:version/annotate', :to => 'wiki#annotate'
+    get 'wiki/:id/:version/diff', :to => 'wiki#diff'
   end
 
   resources :issues do
@@ -282,19 +283,24 @@ RedmineApp::Application.routes.draw do
   match 'groups/destroy_membership/:id', :controller => 'groups', :action => 'destroy_membership', :id => /\d+/, :via => :post
   match 'groups/edit_membership/:id', :controller => 'groups', :action => 'edit_membership', :id => /\d+/, :via => :post
 
-  resources :trackers, :except => :show
+  resources :trackers, :except => :show do
+    collection do
+      match 'fields', :via => [:get, :post]
+    end
+  end
   resources :issue_statuses, :except => :show do
     collection do
       post 'update_issue_done_ratio'
     end
   end
   resources :custom_fields, :except => :show
-  resources :roles, :except => :show do
+  resources :roles do
     collection do
       match 'permissions', :via => [:get, :post]
     end
   end
   resources :enumerations, :except => :show
+  match 'enumerations/:type', :to => 'enumerations#index', :via => :get
 
   get 'projects/:id/search', :controller => 'search', :action => 'index'
   get 'search', :controller => 'search', :action => 'index'
