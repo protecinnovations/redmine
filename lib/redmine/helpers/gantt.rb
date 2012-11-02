@@ -335,6 +335,7 @@ module Redmine
           end
           subject << view.link_to_issue(issue).html_safe
           subject << '</span>'.html_safe
+          subject << " <span class='time_overview' title='Hours Spent / Estimated: #{issue.total_spent_hours.to_s} / #{issue.estimated_hours.to_s}'>(#{issue.total_spent_hours.to_s}/#{issue.estimated_hours.to_s})</span>".html_safe
           html_subject(options, subject, :css => "issue-subject", :title => issue.subject) + "\n"
         when :image
           image_subject(options, issue.subject)
