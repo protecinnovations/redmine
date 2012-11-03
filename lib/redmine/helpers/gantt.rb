@@ -267,7 +267,8 @@ module Redmine
           label = h(project)
           case options[:format]
           when :html
-            html_task(options, coords, :css => "project task", :label => label, :markers => true)
+            html_task(options, coords, :css => "project task", :label => label, :markers => true,
+                :id => project.id, :kind => "p")
           when :image
             image_task(options, coords, :label => label, :markers => true, :height => 3)
           when :pdf
@@ -304,7 +305,8 @@ module Redmine
           label = h("#{version.project} -") + label unless @project && @project == version.project
           case options[:format]
           when :html
-            html_task(options, coords, :css => "version task", :label => label, :markers => true)
+            html_task(options, coords, :css => "version task", :label => label, :markers => true,
+                :id => version.id, :kind => "v")
           when :image
             image_task(options, coords, :label => label, :markers => true, :height => 3)
           when :pdf
