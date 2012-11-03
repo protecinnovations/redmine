@@ -13,6 +13,31 @@ function setup_dom() {
             }
         }
     );
+
+
+    $(".task_todo").resizable(
+        {
+            handles: "e, w",
+            grid: [ Math.pow(2, zoom), 10 ],
+            minWidth: [ Math.pow(2, zoom), 10 ],
+            start: function(event, ui) {
+                $(this).siblings().hide();
+            },
+            stop: function(event, ui) {
+                issue_resized(this);
+            }
+        }
+    );
+}
+
+function issue_resized(i_el) {
+    el = $(i_el);
+    el_left = el.position().left;
+    el.parent().css("left", el.parent().position().left + el_left);
+    el.css("left", "auto");
+    el.parent().width(el.width() + 100);
+
+    issue_moved(el.parent().get(0));
 }
 
 function setup_events() {

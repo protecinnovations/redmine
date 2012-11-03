@@ -614,8 +614,8 @@ module Redmine
         if pms[:day]
           #bar moved
           day = pms[:day].to_i
-          duration = @issue.due_before - @issue.start_date
           @issue.start_date = date_from + day
+          duration = pms[:day_to].to_i - day
           @issue.due_date = @issue.start_date + duration.to_i if @issue.due_date
         elsif pms[:start_date]
           #start date changed

@@ -74,8 +74,17 @@ t_height = g_height + headers_height
     var v_pzm = document.getElementById('i_pzm').getAttribute("value");
     var url_str = '<%=  url_for(:controller=>:gantts, :action => :edit_gantt) %>';
     url_str = url_str + "/" + id_str;
-    var day = parseInt(elem.style.left)/parseInt(v_zm);
-    var data = 'day='+day+'&date_from='+v_date_from+'&date_to='+v_date_to+'&zoom='+v_pzm+"&project_id=<%= @project.to_param %>";
+    //var day = parseInt(elem.style.left)/parseInt(v_zm);
+
+    var todo = $(elem).children('.task_todo').eq(0);
+
+    var todo_left_px = elem.style.left + todo.position().left;
+    var todo_right_px = (parseInt(todo.width()) + parseInt(todo_left_px));
+
+    var day_from = parseInt(todo_left_px)/parseInt(v_zm);
+    var day_to = parseInt(todo_right_px)/parseInt(v_zm);
+
+    var data = 'day='+day_from+'&day_to='+day_to+'&date_from='+v_date_from+'&date_to='+v_date_to+'&zoom='+v_pzm+"&project_id=<%= @project.to_param %>";
     $.ajax({type: "POST", url: url_str, data: data, success: change_dates});
 
     /*
@@ -157,6 +166,7 @@ t_height = g_height + headers_height
     
     var late_elem = document.getElementById('task_late_' + elem_id);
     if (late_elem) {
+      $(late_elem).show();
       var parentStr = "";
       if (late_elem.className.indexOf("parent") > 0) parentStr = "parent ";
       late_elem.style.width = vals[6] + 'px';
@@ -168,6 +178,7 @@ t_height = g_height + headers_height
     }
     var done_elem = document.getElementById('task_done_' + elem_id);
     if (done_elem) {
+      $(done_elem).show();
       var parentStr = "";
       if (done_elem.className.indexOf("parent") > 0) parentStr = "parent ";
       done_elem.style.width = vals[7] + 'px';
