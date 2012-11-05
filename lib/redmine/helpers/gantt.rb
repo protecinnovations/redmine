@@ -603,10 +603,11 @@ module Redmine
           return "issue not found : #{pms[:id]}", 400
         end
 
-        if !@issue.start_date || !@issue.due_before
-          #render :text=>l(:notice_locking_conflict), :status=>400
-          return l(:notice_locking_conflict), 400
-        end
+        #if !@issue.start_date || !@issue.due_before
+        #  #render :text=>l(:notice_locking_conflict), :status=>400
+        #  return l(:notice_locking_conflict), 400
+        #end
+
         @issue.init_journal(User.current)
         date_from = Date.parse(pms[:date_from])
         old_start_date = @issue.start_date
@@ -618,7 +619,7 @@ module Redmine
           day = pms[:day].to_i
           @issue.start_date = date_from + day
           duration = pms[:day_to].to_i - day
-          @issue.due_date = @issue.start_date + duration.to_i if @issue.due_date
+          @issue.due_date = @issue.start_date + duration.to_i
         elsif pms[:start_date]
           #start date changed
           start_date = Date.parse(pms[:start_date])
