@@ -1,3 +1,6 @@
 [submodule "install/chef-repo"]
 	path = install/chef-repo
 	url = git@github.com:protecinnovations/protec-redmine-chef-repo.git
+[submodule "public/themes/protec-a1-theme"]
+	path = public/themes/protec-a1-theme
+	url = git@github.com:protecinnovations/a1-theme.git
