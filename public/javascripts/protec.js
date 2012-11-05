@@ -32,12 +32,18 @@ function setup_dom() {
 
 function issue_resized(i_el) {
     el = $(i_el);
-    el_left = el.position().left;
-    el.parent().css("left", el.parent().position().left + el_left);
-    el.css("left", "auto");
-    el.parent().width(el.width() + 100);
 
-    issue_moved(el.parent().get(0));
+    pel = el.parent();
+    pel_dom = pel.get(0);
+
+    el_left = el.position().left;
+    pel_left = pel_dom.style.left;
+
+    pel.css("left", parseInt(pel_left) + parseInt(el_left));
+    el.css("left", "auto");
+    pel.width(el.width() + 100);
+
+    issue_moved(pel.get(0));
 }
 
 function setup_events() {
