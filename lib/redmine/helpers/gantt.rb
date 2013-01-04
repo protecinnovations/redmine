@@ -53,6 +53,9 @@ module Redmine
           @month_from ||= Date.today.month - 1
           @year_from ||= Date.today.year
         end
+        if @month_from < 1
+            @month_from = 1
+        end
         zoom = (options[:zoom] || User.current.pref[:gantt_zoom]).to_i
         @zoom = (zoom > 0 && zoom < 5) ? zoom : 4
         months = (options[:months] || User.current.pref[:gantt_months]).to_i
